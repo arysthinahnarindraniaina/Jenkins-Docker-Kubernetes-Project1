@@ -1,7 +1,6 @@
 node{
     stage('SCM Checkout') {
-
-	git branch: 'main', credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/arysthinahnarindraniaina/Jenkins-Docker-Kubernetes-Project1.git'
+        git branch: 'main', credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/amit873/Jenkins-Docker-Kubernetes-Project1.git'
     }
     
     stage('Maven Clean Package') {
@@ -14,12 +13,12 @@ node{
         sh "docker build -t ameintu/jenkins-docker-k8s-project:${env.BUILD_ID} ."
     }
     
-stage('Push Docker Image'){
+    stage('Push Docker Image'){
         withCredentials([string(credentialsId: 'DOCKER_HUB_CREDENTIALS', variable: 'DOCKER_HUB_CREDENTIALS')]) {
-            sh "echo ${DOCKER_HUB_CREDENTIALS} | docker login -u ameintu --password-stdin"
+            sh "docker login -u ameintu -p ${DOCKER_HUB_CREDENTIALS}"
         }
-sh "docker push ameintu/jenkins-docker-k8s-project:${env.BUILD_ID}"
-}
+        sh "docker push ameintu/jenkins-docker-k8s-project:${env.BUILD_ID}"
+    }
     
     stage("Deploy Application in K8S Cluster"){
         kubernetesDeploy(
