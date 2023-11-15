@@ -14,20 +14,12 @@ node{
         sh "docker build -t ameintu/jenkins-docker-k8s-project:${env.BUILD_ID} ."
     }
     
-stage('Publish Docker and Helm') {
-    steps {
-        script {
-            // Utilisation de withCredentials pour gérer les identifiants Docker de manière sécurisée
-            withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                // Utilisation de --password-stdin pour éviter les avertissements de sécurité
-                sh "docker login -u ${DOCKER_USERNAME} --password-stdin <<< ${DOCKER_PASSWORD}"
-
-                // Ajoutez vos commandes de construction et de publication Docker ici
-            }
+stage('Push Docker Image'){
+        withCredentials([string(credentialsId: 'DOCKER_HUB_CREDENTIALS', variable: 'DOCKER_HUB_CREDENTIALS')]) {
+            sh "docker login -u ameintu -p ${DOCKER_HUB_CREDENTIALS}"
         }
-    }
+sh "docker push ameintu/jenkins-docker-k8s-project:${env.BUILD_ID}"
 }
-
     
     stage("Deploy Application in K8S Cluster"){
         kubernetesDeploy(
