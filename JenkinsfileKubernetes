@@ -13,12 +13,14 @@ node{
         sh "docker build -t ameintu/jenkins-docker-k8s-project:${env.BUILD_ID} ."
     }
     
-    stage('Push Docker Image'){
-        withCredentials([string(credentialsId: 'DOCKER_HUB_CREDENTIALS', variable: 'DOCKER_HUB_CREDENTIALS')]) {
-            sh "docker login -u ameintu -p ${DOCKER_HUB_CREDENTIALS}"
+   stage('Push Docker Image') {
+    steps {
+        withDockerRegistry([credentialsId: 'DOCKER_HUB_CREDENTIALS', url: 'https://registry-1.docker.io']) {
+            sh "echo ${DOCKER_HUB_CREDENTIALS} | docker login --username ameintu --password-stdin"
+            sh "docker push ameintu/jenkins-docker-k8s-project:${env.BUILD_ID}"
         }
-        sh "docker push ameintu/jenkins-docker-k8s-project:${env.BUILD_ID}"
     }
+}
     
     stage("Deploy Application in K8S Cluster"){
         kubernetesDeploy(
