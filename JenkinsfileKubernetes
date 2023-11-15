@@ -14,12 +14,18 @@ node{
         sh "docker build -t ameintu/jenkins-docker-k8s-project:${env.BUILD_ID} ."
     }
     
-    stage('Push Docker Image'){
-        withCredentials([string(credentialsId: 'DOCKER_HUB_CREDENTIALS', variable: 'DOCKER_HUB_CREDENTIALS')]) {
-            sh "docker login -u ameintu -p ${DOCKER_HUB_CREDENTIALS}"
+    sstage('Publish Docker and Helm') {
+    steps {
+        script {
+           
+            withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', usernameVariable: 'narindraniaina', passwordVariable: 'dckr_pat_Qb3mOq8I7RnYiVyckavuj26FhWE')]) {
+               
+                sh "docker login -u ${narindraniaina} --password-stdin <<< ${dckr_pat_Qb3mOq8I7RnYiVyckavuj26FhWE"
+                sh "docker push ameintu/jenkins-docker-k8s-project:${env.BUILD_ID}"
+            }
         }
-        sh "docker push ameintu/jenkins-docker-k8s-project:${env.BUILD_ID}"
     }
+}
     
     stage("Deploy Application in K8S Cluster"){
         kubernetesDeploy(
